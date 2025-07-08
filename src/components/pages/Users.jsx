@@ -11,16 +11,19 @@ import Error from '@/components/ui/Error';
 import Empty from '@/components/ui/Empty';
 import { userService } from '@/services/api/userService';
 import { settingsService } from '@/services/api/settingsService';
-
+import { backupService } from '@/services/api/backupService';
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
-  const [settings, setSettings] = useState(null);
-  
+const [error, setError] = useState(null);
+const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+const [isRestoreConfirmOpen, setIsRestoreConfirmOpen] = useState(false);
+const [selectedBackupFile, setSelectedBackupFile] = useState(null);
+const [isExporting, setIsExporting] = useState(false);
+const [isImporting, setIsImporting] = useState(false);
+const [settings, setSettings] = useState(null);
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
@@ -215,7 +218,70 @@ const Users = () => {
     a.click();
     URL.revokeObjectURL(url);
     
-    toast.success('Users exported successfully');
+toast.success('Users exported successfully');
+  };
+
+  const handleExportDatabase = async () => {
+    try {
+      setIsExporting(true);
+      await backupService.createBackup();
+      toast.success('Database backup created successfully');
+    } catch (err) {
+      toast.error('Failed to create database backup');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleImportDatabase = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.zip';
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      try {
+        const validation = await backupService.validateBackupFile(file);
+        if (!validation.valid) {
+          toast.error(validation.error);
+          return;
+        }
+
+        setSelectedBackupFile(file);
+        setIsRestoreConfirmOpen(true);
+      } catch (err) {
+        toast.error('Failed to validate backup file');
+      }
+    };
+    input.click();
+  };
+
+  const handleConfirmRestore = async () => {
+    if (!selectedBackupFile) return;
+
+    try {
+      setIsImporting(true);
+      setIsRestoreConfirmOpen(false);
+      
+      const result = await backupService.restoreBackup(selectedBackupFile);
+      
+      if (result.success) {
+        toast.success(result.message);
+        // Reload data after successful restore
+        await loadData();
+      }
+    } catch (err) {
+      toast.error(err.message || 'Failed to restore database');
+    } finally {
+      setIsImporting(false);
+      setSelectedBackupFile(null);
+    }
+  };
+
+  const handleCancelRestore = () => {
+    setIsRestoreConfirmOpen(false);
+    setSelectedBackupFile(null);
   };
 
   const handleFilterChange = (filterName, value) => {
@@ -234,13 +300,27 @@ const Users = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Users</h1>
           <p className="text-gray-600">Manage your Instagram users</p>
-        </div>
+</div>
         <div className="flex items-center gap-3">
           <ActionButton
             icon="Download"
             label="Export CSV"
             onClick={handleExportCSV}
             variant="secondary"
+          />
+          <ActionButton
+            icon="Database"
+            label="Export DB"
+            onClick={handleExportDatabase}
+            variant="secondary"
+            disabled={isExporting}
+          />
+          <ActionButton
+            icon="Upload"
+            label="Import DB"
+            onClick={handleImportDatabase}
+            variant="secondary"
+            disabled={isImporting}
           />
           <ActionButton
             icon="Users"
@@ -299,7 +379,49 @@ const Users = () => {
             onBulkAdd={handleBulkAdd}
             accountSources={settings.accountSources}
           />
-        </>
+</>
+      )}
+
+      {/* Restore Confirmation Modal */}
+      {isRestoreConfirmOpen && selectedBackupFile && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Confirm Database Restore
+            </h3>
+            <div className="space-y-4">
+              <p className="text-gray-600">
+                This will replace all current data with the backup. Are you sure you want to continue?
+              </p>
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                <p className="text-sm text-yellow-800">
+                  <strong>Warning:</strong> This action cannot be undone. Consider creating a backup first.
+                </p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="text-sm text-gray-600">
+                  <strong>Backup file:</strong> {selectedBackupFile.name}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 mt-6">
+              <Button
+                variant="secondary"
+                onClick={handleCancelRestore}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConfirmRestore}
+                disabled={isImporting}
+                className="flex-1 bg-red-600 hover:bg-red-700"
+              >
+                {isImporting ? 'Restoring...' : 'Restore Database'}
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
