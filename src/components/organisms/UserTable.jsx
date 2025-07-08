@@ -68,7 +68,7 @@ const getRowClassName = (user) => {
       <table className="w-full">
         <thead>
           <tr className="border-b border-gray-200 bg-gray-50">
-            <th className="text-left p-3 font-medium text-gray-700">Username</th>
+<th className="text-left p-3 font-medium text-gray-700">Username</th>
             <th className="text-left p-3 font-medium text-gray-700">Date Added</th>
             <th className="text-left p-3 font-medium text-gray-700">Source</th>
             <th className="text-left p-3 font-medium text-gray-700">Followed By</th>
@@ -89,14 +89,32 @@ const getRowClassName = (user) => {
                   <div className="h-8 w-8 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center">
                     <ApperIcon name="User" className="h-4 w-4 text-white" />
                   </div>
-                  <span className="font-medium">@{user.username}</span>
+                  <a 
+                    href={`https://dereferer.me/?https://www.instagram.com/${user.username}/`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-primary hover:text-primary-dark transition-colors"
+                  >
+                    @{user.username}
+                  </a>
                 </div>
               </td>
               <td className="p-3 text-sm text-gray-600">
                 {format(new Date(user.dateAdded), 'MMM dd, yyyy')}
               </td>
               <td className="p-3">
-                <Badge variant="primary">{user.accountSource}</Badge>
+                <Select
+                  value={user.accountSource}
+                  onChange={(e) => handleFieldUpdate(user.Id, 'accountSource', e.target.value)}
+                  className="w-28"
+                >
+                  <option value="hashtag">hashtag</option>
+                  <option value="competitor">competitor</option>
+                  <option value="location">location</option>
+                  <option value="manual">manual</option>
+                  <option value="referral">referral</option>
+                  <option value="story_mention">story_mention</option>
+                </Select>
               </td>
 <td className="p-3">
                 <div className="flex flex-wrap gap-1">
