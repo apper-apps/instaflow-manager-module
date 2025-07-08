@@ -119,9 +119,16 @@ const Dashboard = () => {
                 <div className="flex items-center gap-3">
                   <div className="h-8 w-8 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center">
                     <ApperIcon name="User" className="h-4 w-4 text-white" />
-                  </div>
+</div>
                   <div>
-                    <p className="font-medium text-gray-900">@{user.username}</p>
+                    <a 
+                      href={`https://dereferer.me/?https://www.instagram.com/${user.username}/`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-primary hover:text-primary-dark transition-colors"
+                    >
+                      @{user.username}
+                    </a>
                     <p className="text-sm text-gray-500">{user.accountSource}</p>
                   </div>
                 </div>
