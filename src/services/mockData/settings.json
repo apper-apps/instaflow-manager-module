@@ -1,0 +1,19 @@
+{
+  "myAccounts": [
+    "myaccount1",
+    "myaccount2",
+    "business_account"
+  ],
+  "accountSources": [
+    "hashtag",
+    "competitor",
+    "location",
+    "manual",
+    "referral",
+    "story_mention"
+  ],
+  "unfollowReminderDays": 7,
+  "dmReminderDays": 3,
+  "telegramBotToken": "",
+  "telegramChatId": ""
+}
