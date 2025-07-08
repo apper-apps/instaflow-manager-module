@@ -13,8 +13,8 @@ const UserTable = ({ users, onUpdate, onDelete, onBlacklist, myAccounts }) => {
   const handleFieldUpdate = (userId, field, value) => {
     const updates = { [field]: value };
     
-    // Auto-set dates when certain fields are updated
-    if (field === 'followedBy' && value.length > 0) {
+// Auto-set dates when certain fields are updated
+    if (field === 'followedBy' && (Array.isArray(value) ? value.length > 0 : value)) {
       updates.followDate = new Date().toISOString();
     }
     if (field === 'dmSent' && value) {
@@ -24,10 +24,10 @@ const UserTable = ({ users, onUpdate, onDelete, onBlacklist, myAccounts }) => {
     onUpdate(userId, updates);
   };
 
-  const getRowClassName = (user) => {
+const getRowClassName = (user) => {
     if (user.dmSent) return 'status-dm-sent';
     if (user.followedBack) return 'status-followed-back';
-    if (user.followedBy && user.followedBy.length > 0) return 'status-followed';
+    if (user.followedBy && (Array.isArray(user.followedBy) ? user.followedBy.length > 0 : user.followedBy.trim())) return 'status-followed';
     return '';
   };
 
@@ -98,11 +98,11 @@ const UserTable = ({ users, onUpdate, onDelete, onBlacklist, myAccounts }) => {
               <td className="p-3">
                 <Badge variant="primary">{user.accountSource}</Badge>
               </td>
-              <td className="p-3">
+<td className="p-3">
                 <div className="flex flex-wrap gap-1">
-                  {user.followedBy?.map((account, index) => (
+                  {user.followedBy && user.followedBy.split(',').filter(account => account.trim()).map((account, index) => (
                     <Badge key={index} variant="default" className="text-xs">
-                      @{account}
+                      @{account.trim()}
                     </Badge>
                   ))}
                 </div>

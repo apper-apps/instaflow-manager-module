@@ -31,14 +31,13 @@ const Dashboard = () => {
   if (loading) return <Loading />;
   if (error) return <Error message={error} onRetry={loadData} />;
 
-  // Calculate statistics
+// Calculate statistics
   const totalUsers = users.length;
-  const followedUsers = users.filter(u => u.followedBy && u.followedBy.length > 0).length;
+  const followedUsers = users.filter(u => u.followedBy && (Array.isArray(u.followedBy) ? u.followedBy.length > 0 : u.followedBy.trim())).length;
   const followedBackUsers = users.filter(u => u.followedBack).length;
   const dmsSent = users.filter(u => u.dmSent).length;
   const repliesReceived = users.filter(u => u.responseStatus === 'Replied').length;
   const unfollowedUsers = users.filter(u => u.unfollowed).length;
-
   // Recent activity
   const recentUsers = users
     .sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded))
@@ -127,11 +126,11 @@ const Dashboard = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-600">
+<p className="text-sm text-gray-600">
                     {format(new Date(user.dateAdded), 'MMM dd, yyyy')}
                   </p>
                   <div className="flex items-center gap-2 mt-1">
-                    {user.followedBy && user.followedBy.length > 0 && (
+                    {user.followedBy && (Array.isArray(user.followedBy) ? user.followedBy.length > 0 : user.followedBy.trim()) && (
                       <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
                     )}
                     {user.followedBack && (
@@ -162,8 +161,8 @@ const Dashboard = () => {
               <ApperIcon name="UserPlus" className="h-5 w-5 text-primary" />
               <h3 className="font-medium text-gray-900">To Follow</h3>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
-              {users.filter(u => !u.followedBy || u.followedBy.length === 0).length}
+<p className="text-2xl font-bold text-gray-900">
+              {users.filter(u => !u.followedBy || (Array.isArray(u.followedBy) ? u.followedBy.length === 0 : !u.followedBy.trim())).length}
             </p>
             <p className="text-sm text-gray-600">Users ready to follow</p>
           </div>

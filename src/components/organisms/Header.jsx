@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { NavLink } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { cn } from '@/utils/cn';
 import ApperIcon from '@/components/ApperIcon';
 import Button from '@/components/atoms/Button';
+import { AuthContext } from '@/App';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { logout } = useContext(AuthContext);
+  const { user } = useSelector((state) => state.user);
 
   const navItems = [
     { path: '/', label: 'Dashboard', icon: 'BarChart3' },
@@ -47,7 +51,32 @@ const Header = () => {
                 {item.label}
               </NavLink>
             ))}
-          </nav>
+</nav>
+
+          {/* User section */}
+          <div className="hidden md:flex items-center gap-4">
+            {user && (
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <p className="text-sm font-medium text-gray-900">
+                    {user.firstName} {user.lastName}
+                  </p>
+                  <p className="text-xs text-gray-500">{user.emailAddress}</p>
+                </div>
+                <div className="h-8 w-8 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center">
+                  <ApperIcon name="User" className="h-4 w-4 text-white" />
+                </div>
+              </div>
+            )}
+            <Button
+              variant="ghost"
+              onClick={logout}
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            >
+              <ApperIcon name="LogOut" className="h-4 w-4" />
+              Logout
+            </Button>
+          </div>
 
           {/* Mobile menu button */}
           <div className="md:hidden">
@@ -79,8 +108,33 @@ const Header = () => {
                 >
                   <ApperIcon name={item.icon} className="h-4 w-4" />
                   {item.label}
-                </NavLink>
+</NavLink>
               ))}
+              
+              {/* Mobile user section */}
+              {user && (
+                <div className="border-t border-gray-200 pt-4 mt-4">
+                  <div className="flex items-center gap-3 px-3 py-2">
+                    <div className="h-8 w-8 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center">
+                      <ApperIcon name="User" className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">
+                        {user.firstName} {user.lastName}
+                      </p>
+                      <p className="text-xs text-gray-500">{user.emailAddress}</p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    onClick={logout}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-left text-gray-600 hover:text-gray-900 mt-2"
+                  >
+                    <ApperIcon name="LogOut" className="h-4 w-4" />
+                    Logout
+                  </Button>
+                </div>
+              )}
             </nav>
           </div>
         )}

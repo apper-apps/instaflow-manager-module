@@ -48,10 +48,10 @@ const Settings = () => {
       return;
     }
 
-    try {
+try {
       const updatedSettings = {
         ...settings,
-        myAccounts: [...settings.myAccounts, cleanAccount]
+        myAccounts: [...(settings.myAccounts || []), cleanAccount]
       };
       
       await settingsService.updateSettings(updatedSettings);
@@ -64,10 +64,10 @@ const Settings = () => {
   };
 
   const handleRemoveAccount = async (accountToRemove) => {
-    try {
+try {
       const updatedSettings = {
         ...settings,
-        myAccounts: settings.myAccounts.filter(account => account !== accountToRemove)
+        myAccounts: (settings.myAccounts || []).filter(account => account !== accountToRemove)
       };
       
       await settingsService.updateSettings(updatedSettings);
@@ -91,10 +91,10 @@ const Settings = () => {
       return;
     }
 
-    try {
+try {
       const updatedSettings = {
         ...settings,
-        accountSources: [...settings.accountSources, cleanSource]
+        accountSources: [...(settings.accountSources || []), cleanSource]
       };
       
       await settingsService.updateSettings(updatedSettings);
@@ -107,10 +107,10 @@ const Settings = () => {
   };
 
   const handleRemoveSource = async (sourceToRemove) => {
-    try {
+try {
       const updatedSettings = {
         ...settings,
-        accountSources: settings.accountSources.filter(source => source !== sourceToRemove)
+        accountSources: (settings.accountSources || []).filter(source => source !== sourceToRemove)
       };
       
       await settingsService.updateSettings(updatedSettings);
@@ -230,9 +230,8 @@ const Settings = () => {
             />
             <Button onClick={handleAddAccount}>Add Account</Button>
           </div>
-          
-          <div className="flex flex-wrap gap-2">
-            {settings.myAccounts.map((account) => (
+<div className="flex flex-wrap gap-2">
+            {(settings.myAccounts || []).map((account) => (
               <div key={account} className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
                 <span className="text-sm">@{account}</span>
                 <button
@@ -264,9 +263,8 @@ const Settings = () => {
             />
             <Button onClick={handleAddSource}>Add Source</Button>
           </div>
-          
-          <div className="flex flex-wrap gap-2">
-            {settings.accountSources.map((source) => (
+<div className="flex flex-wrap gap-2">
+            {(settings.accountSources || []).map((source) => (
               <div key={source} className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
                 <span className="text-sm">{source}</span>
                 <button

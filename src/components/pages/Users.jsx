@@ -61,7 +61,7 @@ const [settings, setSettings] = useState(null);
     let filtered = users;
 
     // Search filter
-    if (searchTerm) {
+if (searchTerm) {
       filtered = filtered.filter(user =>
         user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.accountSource.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -74,7 +74,8 @@ const [settings, setSettings] = useState(null);
       filtered = filtered.filter(user => user.accountSource === filters.accountSource);
     }
     if (filters.followedBy) {
-      filtered = filtered.filter(user => user.followedBy?.includes(filters.followedBy));
+      const followedByArray = user.followedBy ? user.followedBy.split(',') : [];
+      filtered = filtered.filter(user => followedByArray.includes(filters.followedBy));
     }
     if (filters.followedBack) {
       filtered = filtered.filter(user => user.followedBack === (filters.followedBack === 'true'));
@@ -92,7 +93,7 @@ const [settings, setSettings] = useState(null);
     setFilteredUsers(filtered);
   }, [users, searchTerm, filters]);
 
-  const handleAddUser = async (userData) => {
+const handleAddUser = async (userData) => {
     try {
       // Check for duplicates
       const existingUser = users.find(u => u.username.toLowerCase() === userData.username.toLowerCase());
@@ -110,16 +111,20 @@ const [settings, setSettings] = useState(null);
       }
 
       const newUser = await userService.create({
-        ...userData,
+        Name: userData.username,
+        username: userData.username,
+        accountSource: userData.accountSource,
         dateAdded: new Date().toISOString(),
-        followedBy: [],
+        followedBy: "",
         followedBack: false,
         dmSent: false,
         unfollowed: false,
-        isBlacklisted: false
+        isBlacklisted: false,
+        notes: ""
       });
 
       setUsers(prev => [...prev, newUser]);
+      toast.success('User added successfully');
       return true;
     } catch (err) {
       toast.error('Failed to add user');
@@ -141,15 +146,17 @@ const [settings, setSettings] = useState(null);
           continue;
         }
 
-        const newUser = await userService.create({
-          username,
-          accountSource,
+const newUser = await userService.create({
+          Name: username,
+          username: username,
+          accountSource: accountSource,
           dateAdded: new Date().toISOString(),
-          followedBy: [],
+          followedBy: "",
           followedBack: false,
           dmSent: false,
           unfollowed: false,
-          isBlacklisted: false
+          isBlacklisted: false,
+          notes: ""
         });
 
         setUsers(prev => [...prev, newUser]);
@@ -190,12 +197,12 @@ const [settings, setSettings] = useState(null);
     }
   };
 
-  const handleExportCSV = () => {
+const handleExportCSV = () => {
     const csvData = users.map(user => ({
       username: user.username,
       dateAdded: user.dateAdded,
       accountSource: user.accountSource,
-      followedBy: user.followedBy?.join(';') || '',
+      followedBy: user.followedBy || '',
       followDate: user.followDate || '',
       followedBack: user.followedBack ? 'Yes' : 'No',
       dmSent: user.dmSent ? 'Yes' : 'No',

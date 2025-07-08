@@ -51,9 +51,9 @@ const FilterBar = ({
           onSelect={(value) => onFilterChange('accountSource', value)}
         />
         
-        <FilterDropdown
+<FilterDropdown
           title="Followed By"
-          options={myAccounts.map(account => ({ value: account, label: `@${account}` }))}
+          options={(myAccounts || []).map(account => ({ value: account, label: `@${account}` }))}
           selectedValue={filters.followedBy}
           onSelect={(value) => onFilterChange('followedBy', value)}
         />

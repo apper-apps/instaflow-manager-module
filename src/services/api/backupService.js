@@ -105,13 +105,21 @@ To restore, use the "Restore Backup" feature in Settings.`);
     }
   },
 
-  async restoreUsers(users) {
+async restoreUsers(users) {
     // This is a simplified restore - in a real app, you'd want more sophisticated merging
-    const { userService: userSvc } = await import('./userService');
+    const { userService } = await import('./userService');
     
-    // Clear existing users and restore from backup
-    // Note: This replaces all data - in production, you might want merge options
-    userSvc.users = [...users];
+    // In a real database implementation, you would:
+    // 1. Clear existing users
+    // 2. Bulk create users from backup
+    // For now, we'll recreate users one by one
+    for (const user of users) {
+      try {
+        await userService.create(user);
+      } catch (error) {
+        console.error('Failed to restore user:', user.username, error);
+      }
+    }
   },
 
   async validateBackupFile(file) {
